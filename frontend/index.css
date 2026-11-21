@@ -1,0 +1,278 @@
+@import "tailwindcss";
+@source "./coverage";
+
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/Caveat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/Caveat-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/Caveat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/Caveat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-caveat {
+  font-family: 'Caveat', cursive, sans-serif;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded', sans-serif;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* THEME SOMBRE GLOBAL */
+html.dark,
+html.dark body {
+  background-color: #1F1F1F;
+  color: #E8EAED;
+}
+
+html.dark .bg-white,
+html.dark .bg-\[\#FFFFFF\] {
+  background-color: #1F1F1F;
+}
+
+html.dark .bg-\[\#F8F9FA\],
+html.dark .bg-\[\#F9FAFB\] {
+  background-color: #28292A;
+}
+
+html.dark .bg-\[\#F3F4F6\],
+html.dark .bg-\[\#E5E7EB\] {
+  background-color: #303134;
+}
+
+html.dark .bg-\[\#D1D5DB\] {
+  background-color: #5F6368;
+}
+
+html.dark .bg-\[\#EFF6FF\] {
+  background-color: rgba(138, 180, 248, 0.14);
+}
+
+html.dark .bg-\[\#FEF2F2\] {
+  background-color: rgba(242, 139, 130, 0.14);
+}
+
+html.dark .text-\[\#111827\] {
+  color: #E8EAED;
+}
+
+html.dark .text-\[\#374151\] {
+  color: #BDC1C6;
+}
+
+html.dark .text-\[\#6B7280\],
+html.dark .text-\[\#9CA3AF\] {
+  color: #9AA0A6;
+}
+
+html.dark .text-\[\#D1D5DB\] {
+  color: #5F6368;
+}
+
+html.dark .text-\[\#2563EB\] {
+  color: #8AB4F8;
+}
+
+html.dark .text-\[\#1D4ED8\] {
+  color: #AECBFA;
+}
+
+html.dark .text-\[\#7C3AED\] {
+  color: #C58AF9;
+}
+
+html.dark .text-\[\#6D28D9\] {
+  color: #D7AEFB;
+}
+
+html.dark .text-\[\#DC2626\] {
+  color: #F28B82;
+}
+
+html.dark .border-\[\#E5E7EB\],
+html.dark .divide-\[\#E5E7EB\] > :not(:last-child) {
+  border-color: #3C4043;
+}
+
+html.dark .border-\[\#D1D5DB\] {
+  border-color: #5F6368;
+}
+
+html.dark .border-\[\#9CA3AF\] {
+  border-color: #80868B;
+}
+
+html.dark .border-\[\#BFDBFE\] {
+  border-color: rgba(138, 180, 248, 0.35);
+}
+
+html.dark .border-\[\#FECACA\],
+html.dark .border-\[\#FCA5A5\] {
+  border-color: rgba(242, 139, 130, 0.35);
+}
+
+html.dark .border-\[\#DC2626\] {
+  border-color: #F28B82;
+}
+
+html.dark .border-\[\#2563EB\] {
+  border-color: #8AB4F8;
+}
+
+html.dark .ring-\[\#FFFFFF\] {
+  --tw-ring-color: #1F1F1F;
+}
+
+html.dark .ring-offset-\[\#F8F9FA\] {
+  --tw-ring-offset-color: #28292A;
+}
+
+html.dark .hover\:bg-\[\#F3F4F6\]:hover,
+html.dark .hover\:bg-\[\#E5E7EB\]:hover {
+  background-color: #303134;
+}
+
+html.dark .hover\:bg-\[\#F8F9FA\]:hover,
+html.dark .hover\:bg-\[\#F9FAFB\]:hover {
+  background-color: #28292A;
+}
+
+html.dark .hover\:bg-\[\#FFFFFF\]:hover {
+  background-color: #1F1F1F;
+}
+
+html.dark .hover\:bg-\[\#EFF6FF\]:hover {
+  background-color: rgba(138, 180, 248, 0.14);
+}
+
+html.dark .hover\:bg-\[\#FEF2F2\]:hover {
+  background-color: rgba(242, 139, 130, 0.14);
+}
+
+html.dark .hover\:bg-\[\#E5E7EB\]\/50:hover {
+  background-color: rgba(60, 64, 67, 0.6);
+}
+
+html.dark .hover\:bg-\[\#E5E7EB\]\/20:hover {
+  background-color: rgba(60, 64, 67, 0.3);
+}
+
+html.dark .active\:bg-\[\#E5E7EB\]:active {
+  background-color: #3C4043;
+}
+
+html.dark .hover\:text-\[\#111827\]:hover {
+  color: #E8EAED;
+}
+
+html.dark .hover\:text-\[\#1D4ED8\]:hover {
+  color: #AECBFA;
+}
+
+html.dark .hover\:text-\[\#6D28D9\]:hover {
+  color: #D7AEFB;
+}
+
+html.dark .hover\:border-\[\#9CA3AF\]:hover {
+  border-color: #80868B;
+}
+
+html.dark .focus\:border-\[\#2563EB\]:focus {
+  border-color: #8AB4F8;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #9AA0A6;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #5F6368;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #80868B;
+}
+
+/* ANIMATION LORS DU CHANGEMENT DE THEME */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition-property: background-color, border-color, color, fill, stroke !important;
+  transition-duration: 280ms !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+

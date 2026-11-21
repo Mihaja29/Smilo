@@ -1,0 +1,403 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // REFUS GLOBAL PAR DEFAUT
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // HELPERS COMMUNS D'IDENTIFICATION ET D'AUTORISATION
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email_verified == true &&
+        (
+          request.auth.token.email == 'antokofaha9faravohitra@gmail.com' ||
+          request.auth.token.email == 'mathieuromeo2025@gmail.com' ||
+          request.auth.token.email == 'rabarisoaharimalala@gmail.com' ||
+          request.auth.token.email == 'mathieuandrianarivelo03@gmail.com'
+        );
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        isBootstrappedAdmin()
+      );
+    }
+
+    function isOwner(data) {
+      return isSignedIn() &&
+        'createdBy' in data &&
+        data.createdBy is string &&
+        data.createdBy == request.auth.uid;
+    }
+
+    function isDiscussionOwner(data) {
+      return isSignedIn() && (
+        ('createdBy' in data && data.createdBy is string && data.createdBy == request.auth.uid) ||
+        ('authorUid' in data && data.authorUid is string && data.authorUid == request.auth.uid)
+      );
+    }
+
+    // VALIDATEURS DE SCHEMAS PAR COLLECTION
+    function isValidServiceAdmin(data) {
+      return data.keys().hasAll(['role', 'createdAt']) &&
+        data.keys().hasOnly(['role', 'createdAt']) &&
+        data.role is string &&
+        data.role == 'service' &&
+        data.createdAt is string &&
+        data.createdAt.size() > 0 &&
+        data.createdAt.size() <= 40;
+    }
+
+    function isValidPatient(data) {
+      return data.keys().hasAll([
+        'identifiant', 'nom', 'prenom', 'sexe',
+        'dateNaissance', 'adresse', 'telephone', 'cabinet',
+        'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'identifiant', 'nom', 'prenom', 'sexe',
+        'dateNaissance', 'adresse', 'telephone', 'email',
+        'cabinet', 'profession', 'assurance',
+        'allergies', 'antecedents', 'traitements',
+        'grossesseAllaitement', 'historiqueSoins', 'createdBy', 'createdAt',
+        'updatedAt', 'deleted', 'deletedAt'
+      ]) &&
+      data.identifiant is string &&
+      data.identifiant.size() > 0 &&
+      data.identifiant.size() <= 20 &&
+      data.identifiant.matches('^CAB-[A-Z]{2,6}-[0-9]{6}$') &&
+      data.nom is string && data.nom.size() > 0 && data.nom.size() <= 100 &&
+      data.prenom is string && data.prenom.size() > 0 && data.prenom.size() <= 100 &&
+      data.sexe is string && (data.sexe == 'Masculin' || data.sexe == 'Féminin') &&
+      data.dateNaissance is string && data.dateNaissance.size() > 0 && data.dateNaissance.size() <= 20 &&
+      data.adresse is string && data.adresse.size() > 0 && data.adresse.size() <= 255 &&
+      data.telephone is string && data.telephone.size() > 0 && data.telephone.size() <= 30 &&
+      (!('email' in data) || (data.email is string && data.email.size() <= 100)) &&
+      data.cabinet is string && data.cabinet.size() > 0 && data.cabinet.size() <= 100 &&
+      (!('profession' in data) || (data.profession is string && data.profession.size() <= 100)) &&
+      (!('assurance' in data) || (data.assurance is string && data.assurance.size() <= 100)) &&
+      (!('allergies' in data) || (data.allergies is list && data.allergies.size() <= 50 && (data.allergies.size() == 0 || data.allergies[0] is string))) &&
+      (!('antecedents' in data) || (data.antecedents is list && data.antecedents.size() <= 50 && (data.antecedents.size() == 0 || data.antecedents[0] is string))) &&
+      (!('traitements' in data) || (data.traitements is list && data.traitements.size() <= 50 && (data.traitements.size() == 0 || data.traitements[0] is string))) &&
+      (!('grossesseAllaitement' in data) || (data.grossesseAllaitement is list && data.grossesseAllaitement.size() <= 20 && (data.grossesseAllaitement.size() == 0 || data.grossesseAllaitement[0] is string))) &&
+      (!('historiqueSoins' in data) || (data.historiqueSoins is list && data.historiqueSoins.size() <= 200 && (data.historiqueSoins.size() == 0 || data.historiqueSoins[0] is map))) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    function isValidAssurance(data) {
+      return data.keys().hasAll([
+        'label', 'displayLabel', 'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'label', 'displayLabel', 'description', 'isDefault',
+        'deleted', 'deletedAt', 'createdBy', 'createdAt', 'updatedAt'
+      ]) &&
+      data.label is string && data.label.size() > 0 && data.label.size() <= 120 &&
+      data.displayLabel is string && data.displayLabel.size() > 0 && data.displayLabel.size() <= 120 &&
+      (!('description' in data) || (data.description is string && data.description.size() <= 500)) &&
+      (!('isDefault' in data) || data.isDefault is bool) &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    function isValidPriseEnCharge(data) {
+      return data.keys().hasAll([
+        'cabinetDentaire', 'numeroFacture', 'montantProposeAriary',
+        'montantAssuranceAriary', 'patientNomPrenom', 'nomSociete',
+        'agence', 'numeroPriseEnCharge', 'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'cabinetDentaire', 'numeroFacture', 'montantProposeAriary',
+        'montantAssuranceAriary', 'patientNomPrenom', 'nomSociete',
+        'agence', 'numeroPriseEnCharge', 'dateAttestation',
+        'createursPriseEnCharge', 'dateEnvoi', 'etatTraitement',
+        'dateObtentionCheque', 'deleted', 'deletedAt', 'createdBy',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.cabinetDentaire is string && data.cabinetDentaire.size() > 0 && data.cabinetDentaire.size() <= 100 &&
+      data.numeroFacture is string && data.numeroFacture.size() > 0 && data.numeroFacture.size() <= 100 &&
+      data.montantProposeAriary is string && data.montantProposeAriary.size() > 0 && data.montantProposeAriary.size() <= 40 &&
+      data.montantAssuranceAriary is string && data.montantAssuranceAriary.size() > 0 && data.montantAssuranceAriary.size() <= 40 &&
+      data.patientNomPrenom is string && data.patientNomPrenom.size() > 0 && data.patientNomPrenom.size() <= 200 &&
+      data.nomSociete is string && data.nomSociete.size() > 0 && data.nomSociete.size() <= 150 &&
+      data.agence is string && data.agence.size() > 0 && data.agence.size() <= 120 &&
+      data.numeroPriseEnCharge is string && data.numeroPriseEnCharge.size() > 0 && data.numeroPriseEnCharge.size() <= 100 &&
+      (!('dateAttestation' in data) || (data.dateAttestation is string && data.dateAttestation.size() <= 20)) &&
+      (!('createursPriseEnCharge' in data) || (data.createursPriseEnCharge is string && data.createursPriseEnCharge.size() <= 200)) &&
+      (!('dateEnvoi' in data) || (data.dateEnvoi is string && data.dateEnvoi.size() <= 20)) &&
+      (!('etatTraitement' in data) || (data.etatTraitement is string && (data.etatTraitement == 'En cours' || data.etatTraitement == 'Reçu'))) &&
+      (!('dateObtentionCheque' in data) || (data.dateObtentionCheque is string && data.dateObtentionCheque.size() <= 20)) &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    function isValidProthese(data) {
+      return data.keys().hasAll([
+        'cabinetDentaire', 'patientNomPrenom', 'numeroDentaire',
+        'typeProthese', 'nomLaboratoire', 'dateEnvoi', 'montant',
+        'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'cabinetDentaire', 'patientNomPrenom', 'patientContact',
+        'numeroDentaire', 'typeProthese', 'teinteProthese',
+        'nomLaboratoire', 'nomCreateurProthese', 'dateEnvoi',
+        'dateLivraison', 'montant', 'etatTraitement',
+        'deleted', 'deletedAt', 'createdBy', 'createdAt', 'updatedAt'
+      ]) &&
+      data.cabinetDentaire is string && data.cabinetDentaire.size() > 0 && data.cabinetDentaire.size() <= 100 &&
+      data.patientNomPrenom is string && data.patientNomPrenom.size() > 0 && data.patientNomPrenom.size() <= 200 &&
+      (!('patientContact' in data) || (data.patientContact is string && data.patientContact.size() <= 100)) &&
+      data.numeroDentaire is string && data.numeroDentaire.size() > 0 && data.numeroDentaire.size() <= 100 &&
+      data.typeProthese is string && data.typeProthese.size() > 0 && data.typeProthese.size() <= 150 &&
+      (!('teinteProthese' in data) || (data.teinteProthese is string && data.teinteProthese.size() <= 50)) &&
+      data.nomLaboratoire is string && data.nomLaboratoire.size() > 0 && data.nomLaboratoire.size() <= 150 &&
+      (!('nomCreateurProthese' in data) || (data.nomCreateurProthese is string && data.nomCreateurProthese.size() <= 150)) &&
+      data.dateEnvoi is string && data.dateEnvoi.size() > 0 && data.dateEnvoi.size() <= 20 &&
+      (!('dateLivraison' in data) || (data.dateLivraison is string && data.dateLivraison.size() <= 20)) &&
+      data.montant is string && data.montant.size() > 0 && data.montant.size() <= 50 &&
+      (!('etatTraitement' in data) || (data.etatTraitement is string && (data.etatTraitement == 'En cours' || data.etatTraitement == 'Terminer'))) &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    function isValidCabinet(data) {
+      return data.keys().hasAll([
+        'name', 'description', 'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'name', 'code', 'description', 'isDefault',
+        'deleted', 'deletedAt', 'createdBy', 'createdAt', 'updatedAt'
+      ]) &&
+      data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+      (!('code' in data) || (data.code is string && data.code.matches('^[A-Z]{2,6}$'))) &&
+      data.description is string && data.description.size() <= 255 &&
+      (!('isDefault' in data) || data.isDefault is bool) &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    function isValidDiscussion(data) {
+      return data.keys().hasAll([
+        'role', 'authorName', 'authorUid', 'content', 'createdBy', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'conversationId', 'role', 'authorName', 'authorUid', 'content', 'imageDataUrl',
+        'deleted', 'deletedAt', 'createdBy', 'createdAt', 'updatedAt'
+      ]) &&
+      (!('conversationId' in data) || (data.conversationId is string && data.conversationId.size() > 0 && data.conversationId.size() <= 80 && data.conversationId.matches('^[a-zA-Z0-9_\\-]+$'))) &&
+      data.role is string && (data.role == 'user' || data.role == 'assistant') &&
+      data.authorName is string && data.authorName.size() > 0 && data.authorName.size() <= 120 &&
+      data.authorUid is string && data.authorUid.size() > 0 && data.authorUid.size() <= 128 &&
+      data.content is string && data.content.size() > 0 && data.content.size() <= 4000 &&
+      (!('imageDataUrl' in data) || data.imageDataUrl == null || (data.imageDataUrl is string && data.imageDataUrl.size() <= 800000 && data.imageDataUrl.matches('^data:image/(png|jpeg|jpg|webp);base64,[A-Za-z0-9+/=]+$'))) &&
+      (!('deleted' in data) || data.deleted is bool) &&
+      (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 40)) &&
+      data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() <= 128 &&
+      data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 40 &&
+      (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 40));
+    }
+
+    // REGLES PAR COLLECTION
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (request.auth.uid == adminId || isAdmin());
+      allow list: if false;
+      allow create: if isValidId(adminId) && isBootstrappedAdmin() && isValidServiceAdmin(incoming());
+      allow update, delete: if false;
+    }
+
+    match /patients/{patientId} {
+      allow get: if isSignedIn() && isValidId(patientId) && (isAdmin() || isOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
+      allow create: if isValidId(patientId) &&
+        isValidPatient(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid));
+      allow update: if isValidId(patientId) &&
+        isValidPatient(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().identifiant == existing().identifiant &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'historiqueSoins', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'deleted', 'deletedAt', 'antecedents', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'nom', 'prenom', 'sexe', 'dateNaissance', 'adresse', 'telephone',
+            'email', 'cabinet', 'profession', 'assurance', 'allergies',
+            'antecedents', 'traitements', 'grossesseAllaitement',
+            'historiqueSoins', 'deleted', 'deletedAt', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(patientId) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing())));
+    }
+
+    match /assurances/{assuranceId} {
+      allow get: if isSignedIn() && isValidId(assuranceId) && (isAdmin() || isOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
+      allow create: if isValidId(assuranceId) &&
+        isValidAssurance(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid));
+      allow update: if isValidId(assuranceId) &&
+        isValidAssurance(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'deleted', 'deletedAt', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'label', 'displayLabel', 'description', 'isDefault',
+            'deleted', 'deletedAt', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(assuranceId) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing())));
+    }
+
+    match /prises_en_charge/{priseEnChargeId} {
+      allow get: if isSignedIn() && isValidId(priseEnChargeId) && (isAdmin() || isOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
+      allow create: if isValidId(priseEnChargeId) &&
+        isValidPriseEnCharge(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid));
+      allow update: if isValidId(priseEnChargeId) &&
+        isValidPriseEnCharge(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'etatTraitement', 'dateObtentionCheque', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'deleted', 'deletedAt', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'cabinetDentaire', 'numeroFacture', 'montantProposeAriary',
+            'montantAssuranceAriary', 'patientNomPrenom', 'nomSociete',
+            'agence', 'numeroPriseEnCharge', 'dateAttestation',
+            'createursPriseEnCharge', 'dateEnvoi', 'etatTraitement',
+            'dateObtentionCheque', 'deleted', 'deletedAt', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(priseEnChargeId) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing())));
+    }
+
+    match /protheses/{protheseId} {
+      allow get: if isSignedIn() && isValidId(protheseId) && (isAdmin() || isOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
+      allow create: if isValidId(protheseId) &&
+        isValidProthese(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid));
+      allow update: if isValidId(protheseId) &&
+        isValidProthese(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'etatTraitement', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'deleted', 'deletedAt', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'cabinetDentaire', 'patientNomPrenom', 'patientContact',
+            'numeroDentaire', 'typeProthese', 'teinteProthese',
+            'nomLaboratoire', 'nomCreateurProthese', 'dateEnvoi',
+            'dateLivraison', 'montant', 'etatTraitement',
+            'deleted', 'deletedAt', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(protheseId) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing())));
+    }
+
+    match /cabinets/{cabinetId} {
+      allow get: if isSignedIn() && isValidId(cabinetId) && (isAdmin() || isOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
+      allow create: if isValidId(cabinetId) &&
+        isValidCabinet(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid));
+      allow update: if isValidId(cabinetId) &&
+        isValidCabinet(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'deleted', 'deletedAt', 'updatedAt'
+          ]) ||
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'name', 'code', 'description', 'isDefault', 'deleted', 'deletedAt', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(cabinetId) &&
+        (isAdmin() || (isVerifiedUser() && isOwner(existing())));
+    }
+
+    match /discussions/{discussionId} {
+      allow get: if isSignedIn() && isValidId(discussionId) && (isAdmin() || isDiscussionOwner(existing()));
+      allow list: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid || existing().authorUid == request.auth.uid);
+      allow create: if isValidId(discussionId) &&
+        isValidDiscussion(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && incoming().createdBy == request.auth.uid && incoming().authorUid == request.auth.uid));
+      allow update: if isValidId(discussionId) &&
+        isValidDiscussion(incoming()) &&
+        (isAdmin() || (isVerifiedUser() && isDiscussionOwner(existing()))) &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().authorUid == existing().authorUid &&
+        incoming().role == existing().role &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'conversationId', 'authorName', 'content', 'imageDataUrl', 'deleted', 'deletedAt', 'updatedAt'
+        ]);
+      allow delete: if isValidId(discussionId) &&
+        (isAdmin() || (isVerifiedUser() && isDiscussionOwner(existing())));
+    }
+  }
+}

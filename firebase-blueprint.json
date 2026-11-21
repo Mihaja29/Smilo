@@ -1,0 +1,545 @@
+{
+  "entities": {
+    "Patient": {
+      "title": "Patient",
+      "description": "Fiche individuelle d'un patient de cabinet dentaire",
+      "type": "object",
+      "properties": {
+        "identifiant": {
+          "type": "string",
+          "description": "Identifiant unique du patient",
+          "pattern": "^CAB-[A-Z]{2,6}-[0-9]{6}$",
+          "maxLength": 20
+        },
+        "nom": {
+          "type": "string",
+          "description": "Nom de famille du patient",
+          "maxLength": 100
+        },
+        "prenom": {
+          "type": "string",
+          "description": "Prenom du patient",
+          "maxLength": 100
+        },
+        "sexe": {
+          "type": "string",
+          "description": "Sexe du patient",
+          "enum": ["Masculin", "Féminin"]
+        },
+        "dateNaissance": {
+          "type": "string",
+          "description": "Date de naissance du patient",
+          "maxLength": 20
+        },
+        "adresse": {
+          "type": "string",
+          "description": "Adresse du patient",
+          "maxLength": 255
+        },
+        "telephone": {
+          "type": "string",
+          "description": "Numero de telephone du patient",
+          "maxLength": 30
+        },
+        "email": {
+          "type": "string",
+          "description": "Adresse email du patient",
+          "maxLength": 100
+        },
+        "cabinet": {
+          "type": "string",
+          "description": "Cabinet de rattachement",
+          "maxLength": 100
+        },
+        "profession": {
+          "type": "string",
+          "description": "Profession du patient",
+          "maxLength": 100
+        },
+        "assurance": {
+          "type": "string",
+          "description": "Assurance du patient",
+          "maxLength": 100
+        },
+        "allergies": {
+          "type": "array",
+          "description": "Liste des allergies"
+        },
+        "antecedents": {
+          "type": "array",
+          "description": "Liste des antecedents medicaux"
+        },
+        "traitements": {
+          "type": "array",
+          "description": "Liste des traitements en cours"
+        },
+        "grossesseAllaitement": {
+          "type": "array",
+          "description": "Situation de grossesse ou allaitement si applicable"
+        },
+        "historiqueSoins": {
+          "type": "array",
+          "description": "Historique des actes de soins du patient"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si la fiche patient est en corbeille"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de mise en corbeille"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "identifiant",
+        "nom",
+        "prenom",
+        "sexe",
+        "dateNaissance",
+        "adresse",
+        "telephone",
+        "cabinet",
+        "createdBy",
+        "createdAt"
+      ]
+    },
+    "Assurance": {
+      "title": "Assurance",
+      "description": "Organisme d'assurance pour la prise en charge des patients",
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Nom complet ou libelle de l'assurance",
+          "maxLength": 120
+        },
+        "displayLabel": {
+          "type": "string",
+          "description": "Nom affiche de l'assurance",
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "description": "Description ou notes sur l'assurance",
+          "maxLength": 500
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Indique s'il s'agit d'une assurance par defaut"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si l'assurance est en corbeille"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de mise en corbeille"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "label",
+        "displayLabel",
+        "createdBy",
+        "createdAt"
+      ]
+    },
+    "PriseEnCharge": {
+      "title": "PriseEnCharge",
+      "description": "Dossier de prise en charge d'un patient aupres d'une assurance",
+      "type": "object",
+      "properties": {
+        "cabinetDentaire": {
+          "type": "string",
+          "description": "Cabinet dentaire prestataire",
+          "maxLength": 100
+        },
+        "numeroFacture": {
+          "type": "string",
+          "description": "Numero de la facture",
+          "maxLength": 100
+        },
+        "montantProposeAriary": {
+          "type": "string",
+          "description": "Montant propose en Ariary",
+          "maxLength": 40
+        },
+        "montantAssuranceAriary": {
+          "type": "string",
+          "description": "Montant accorde par l'assurance en Ariary",
+          "maxLength": 40
+        },
+        "patientNomPrenom": {
+          "type": "string",
+          "description": "Nom et prenom du patient",
+          "maxLength": 200
+        },
+        "nomSociete": {
+          "type": "string",
+          "description": "Nom de la societe du patient",
+          "maxLength": 150
+        },
+        "agence": {
+          "type": "string",
+          "description": "Agence ou organisme d'assurance",
+          "maxLength": 120
+        },
+        "numeroPriseEnCharge": {
+          "type": "string",
+          "description": "Numero de prise en charge",
+          "maxLength": 100
+        },
+        "dateAttestation": {
+          "type": "string",
+          "description": "Date d'attestation",
+          "maxLength": 20
+        },
+        "createursPriseEnCharge": {
+          "type": "string",
+          "description": "Createurs de la prise en charge",
+          "maxLength": 200
+        },
+        "dateEnvoi": {
+          "type": "string",
+          "description": "Date d'envoi",
+          "maxLength": 20
+        },
+        "etatTraitement": {
+          "type": "string",
+          "description": "Etat de traitement de la prise en charge",
+          "enum": ["En cours", "Reçu"]
+        },
+        "dateObtentionCheque": {
+          "type": "string",
+          "description": "Date d'obtention du cheque",
+          "maxLength": 20
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si la prise en charge est en corbeille"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de mise en corbeille"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "cabinetDentaire",
+        "numeroFacture",
+        "montantProposeAriary",
+        "montantAssuranceAriary",
+        "patientNomPrenom",
+        "nomSociete",
+        "agence",
+        "numeroPriseEnCharge",
+        "createdBy",
+        "createdAt"
+      ]
+    },
+    "Prothese": {
+      "title": "Prothese",
+      "description": "Dossier de prothese dentaire d'un patient",
+      "type": "object",
+      "properties": {
+        "cabinetDentaire": {
+          "type": "string",
+          "description": "Cabinet dentaire prestataire",
+          "maxLength": 100
+        },
+        "patientNomPrenom": {
+          "type": "string",
+          "description": "Nom et prenom du patient",
+          "maxLength": 200
+        },
+        "patientContact": {
+          "type": "string",
+          "description": "Contact du patient",
+          "maxLength": 100
+        },
+        "numeroDentaire": {
+          "type": "string",
+          "description": "Numero(s) de dent",
+          "maxLength": 100
+        },
+        "typeProthese": {
+          "type": "string",
+          "description": "Type de prothese dentaire",
+          "maxLength": 150
+        },
+        "teinteProthese": {
+          "type": "string",
+          "description": "Teinte de la prothese",
+          "maxLength": 50
+        },
+        "nomLaboratoire": {
+          "type": "string",
+          "description": "Nom du laboratoire prothetique",
+          "maxLength": 150
+        },
+        "nomCreateurProthese": {
+          "type": "string",
+          "description": "Nom du prothesiste ou createur",
+          "maxLength": 150
+        },
+        "dateEnvoi": {
+          "type": "string",
+          "description": "Date d'envoi au laboratoire",
+          "maxLength": 20
+        },
+        "dateLivraison": {
+          "type": "string",
+          "description": "Date de livraison",
+          "maxLength": 20
+        },
+        "montant": {
+          "type": "string",
+          "description": "Montant de la prothese",
+          "maxLength": 50
+        },
+        "etatTraitement": {
+          "type": "string",
+          "description": "Etat de traitement de la prothese",
+          "enum": ["En cours", "Terminer"]
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si la prothese est en corbeille"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de mise en corbeille"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "cabinetDentaire",
+        "patientNomPrenom",
+        "numeroDentaire",
+        "typeProthese",
+        "nomLaboratoire",
+        "dateEnvoi",
+        "montant",
+        "createdBy",
+        "createdAt"
+      ]
+    },
+    "Cabinet": {
+      "title": "Cabinet",
+      "description": "Cabinet dentaire associe au reseau Smilo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nom du cabinet dentaire",
+          "maxLength": 100
+        },
+        "code": {
+          "type": "string",
+          "description": "Code prefixe unique du cabinet (2 a 6 lettres majuscules)",
+          "pattern": "^[A-Z]{2,6}$",
+          "maxLength": 6
+        },
+        "description": {
+          "type": "string",
+          "description": "Description du cabinet dentaire",
+          "maxLength": 255
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Indique s'il s'agit d'un cabinet par defaut"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si le cabinet est supprime"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de suppression"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "createdBy",
+        "createdAt"
+      ]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Compte administrateur ou service backend autorise",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "description": "Role attribue",
+          "enum": ["admin", "service"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date d'attribution"
+        }
+      },
+      "required": ["role"]
+    },
+    "Discussion": {
+      "title": "Discussion",
+      "description": "Echange entre un utilisateur et l'assistant IA Smilo",
+      "type": "object",
+      "properties": {
+        "conversationId": {
+          "type": "string",
+          "description": "Identifiant de la conversation",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "maxLength": 80
+        },
+        "role": {
+          "type": "string",
+          "description": "Role du message",
+          "enum": ["user", "assistant"]
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Nom affiche de l'expediteur",
+          "maxLength": 120
+        },
+        "authorUid": {
+          "type": "string",
+          "description": "UID de l'utilisateur proprietaire de la discussion",
+          "maxLength": 128
+        },
+        "content": {
+          "type": "string",
+          "description": "Contenu texte du message",
+          "maxLength": 4000
+        },
+        "imageDataUrl": {
+          "type": "string",
+          "description": "Image jointe encodee en base64 (data URL)",
+          "maxLength": 800000
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Indique si le message est supprime"
+        },
+        "deletedAt": {
+          "type": "string",
+          "description": "Date de suppression"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID de l'utilisateur",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date de creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date de mise a jour"
+        }
+      },
+      "required": [
+        "role",
+        "authorName",
+        "authorUid",
+        "content",
+        "createdBy",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/patients/{patientId}": {
+      "schema": "Patient",
+      "description": "Collection des fiches individuelles de patients"
+    },
+    "/assurances/{assuranceId}": {
+      "schema": "Assurance",
+      "description": "Collection des organismes d'assurance"
+    },
+    "/prises_en_charge/{priseEnChargeId}": {
+      "schema": "PriseEnCharge",
+      "description": "Collection des prises en charge d'assurance"
+    },
+    "/protheses/{protheseId}": {
+      "schema": "Prothese",
+      "description": "Collection des protheses dentaires"
+    },
+    "/cabinets/{cabinetId}": {
+      "schema": "Cabinet",
+      "description": "Collection des cabinets dentaires associes"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Registre des UIDs administrateurs et comptes de service autorises"
+    },
+    "/discussions/{discussionId}": {
+      "schema": "Discussion",
+      "description": "Collection des messages de discussion interne"
+    }
+  }
+}

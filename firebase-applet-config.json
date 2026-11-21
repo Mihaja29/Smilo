@@ -1,0 +1,10 @@
+{
+  "projectId": "dentia-horizon",
+  "appId": "1:443792085704:web:ed656168aafbb1ede50bfd",
+  "apiKey": "AIzaSyB0xtXUXh4Fib5jU-ZAJ7rHNuRscbBmA1s",
+  "authDomain": "dentia-horizon.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "dentia-horizon.firebasestorage.app",
+  "messagingSenderId": "443792085704",
+  "measurementId": "G-49C69VZ0ZW"
+}

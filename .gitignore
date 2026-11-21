@@ -1,0 +1,59 @@
+# Dépendances et caches
+node_modules/
+.npm/
+.pnp
+.pnp.*
+.eslintcache
+*.tsbuildinfo
+
+# Builds et sorties de compilation
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+.vite/
+release/
+*.exe
+server.js
+server.cjs
+
+# Variables d'environnement et secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*firebase-adminsdk*.json
+*service-account*.json
+
+# Données locales de cache serveur
+server/data/*.json
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+database-debug.log*
+
+# Journaux et fichiers temporaires
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.local
+*.tmp
+*.temp
+
+# Éditeurs et système d'exploitation
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
